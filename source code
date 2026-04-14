@@ -1,0 +1,103 @@
+create table employee(
+emp_id number(10) primary key,
+emp_name varchar2(50),
+emp_email varchar(100),
+emp_phone varchar2(100),
+emp_dept varchar2(100),
+emp_join_date date
+);
+
+create table registrations(
+reg_id number(10) generated always as identity primary key,
+emp_id number(10),
+username varchar2(50) unique not null,
+password varchar2(100) not null,
+foreign key (emp_id) references employee(emp_id)
+);
+
+
+create or replace procedure update_employee(
+p_id in number,
+p_name in varchar2
+)is
+begin
+update employee
+set emp_name=p_name
+where emp_id=p_id;
+end;
+/
+create or replace procedure delete_employee(
+p_id in number
+)is
+begin
+delete from employee
+where emp_id=p_id;
+end;
+/
+create or replace procedure insert_employee(
+p_id in number,
+p_name in varchar2,
+p_email in varchar2,
+p_phone in varchar2,
+p_dept in varchar2,
+p_join_date in date
+)is
+begin
+insert into employee(emp_id,emp_name,emp_email,emp_phone,emp_dept,emp_join_date)
+values(p_id,p_name,p_email,p_phone,p_dept,p_join_date);
+end;
+/
+create or replace procedure search_employee(
+p_id in number,
+p_name out varchar2,
+p_email out varchar2,
+p_phone out varchar2,
+p_dept out varchar2,
+p_join_date out date
+)is
+begin
+select emp_name,emp_email,emp_phone,emp_dept,emp_join_date
+into p_name,p_email,p_phone,p_dept,p_join_date
+from employee
+where emp_id=p_id;
+end;
+  /
+CREATE OR REPLACE PROCEDURE login_employee (
+      p_username IN VARCHAR2,
+      p_password IN VARCHAR2,
+      p_valid OUT NUMBER,
+      p_emp_id OUT NUMBER
+  ) IS
+  BEGIN
+      SELECT emp_id
+     INTO p_emp_id
+      FROM registrations
+      WHERE username = p_username AND password = p_password;
+
+       p_valid := 1;
+
+EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+          p_valid := 0;
+          p_emp_id := NULL;
+END;
+  /
+
+create or replace procedure login_employee(
+p_username in varchar2,
+p_password in varchar2,
+p_valid out number,
+p_emp_id out number
+)is
+begin
+select emp_id
+into p_emp_id
+from registrations
+where username=p_username and password=p_password;
+p_valid :=1;
+exception
+when NO_DATA_FOUND then
+p_valid :=0;
+p_emp_id :=null;
+end;
+/
